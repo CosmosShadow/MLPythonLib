@@ -78,6 +78,10 @@ def run_training():
         do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.test)
 
 def main(_):
+    # 清掉文件夹
+  if tf.gfile.Exists(FLAGS.train_dir):
+    tf.gfile.DeleteRecursively(FLAGS.train_dir)
+  tf.gfile.MakeDirs(FLAGS.train_dir)
   run_training()
 
 if __name__ == '__main__':

@@ -1,76 +1,42 @@
-# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the 'License');
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-"""A simple MNIST classifier which displays summaries in TensorBoard.
-
- This is an unimpressive MNIST model, but it is a good example of using
-tf.name_scope to make a graph legible in the TensorBoard graph explorer, and of
-naming summary tags so that they are grouped meaningfully in TensorBoard.
-
-It demonstrates the functionality of every TensorBoard dashboard.
-"""
+# coding: utf-8
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+import cmtf.data.data_mnist as data_mnist
 
-from tensorflow.examples.tutorials.mnist import input_data
-
+# 参数
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
-                     'for unit testing.')
-flags.DEFINE_integer('max_steps', 1000, 'Number of steps to run trainer.')
+flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data for unit testing.')
+flags.DEFINE_integer('max_steps', 100, 'Number of steps to run trainer.')
 flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate.')
 flags.DEFINE_float('dropout', 0.9, 'Keep probability for training dropout.')
-flags.DEFINE_string('data_dir', '/tmp/data', 'Directory for storing data')
-flags.DEFINE_string('summaries_dir', '/tmp/mnist_logs', 'Summaries directory')
+flags.DEFINE_string('data_dir', 'data', 'Directory for storing data')
+flags.DEFINE_string('summaries_dir', 'data', 'Summaries directory')
 
 
 def train():
-  # Import data
-  mnist = input_data.read_data_sets(FLAGS.data_dir,
-                                    one_hot=True,
-                                    fake_data=FLAGS.fake_data)
-
+  mnist = data_mnist.read_data_sets(one_hot=True, fake_data=FLAGS.fake_data)
   sess = tf.InteractiveSession()
 
-  # Create a multilayer model.
-
-  # Input placehoolders
+  # 模型
   with tf.name_scope('input'):
     x = tf.placeholder(tf.float32, [None, 784], name='x-input')
     y_ = tf.placeholder(tf.float32, [None, 10], name='y-input')
-
   with tf.name_scope('input_reshape'):
     image_shaped_input = tf.reshape(x, [-1, 28, 28, 1])
     tf.image_summary('input', image_shaped_input, 10)
 
-  # We can't initialize these variables to 0 - the network will get stuck.
   def weight_variable(shape):
-    """Create a weight variable with appropriate initialization."""
     initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
-
   def bias_variable(shape):
-    """Create a bias variable with appropriate initialization."""
     initial = tf.constant(0.1, shape=shape)
     return tf.Variable(initial)
 
   def variable_summaries(var, name):
-    """Attach a lot of summaries to a Tensor."""
     with tf.name_scope('summaries'):
       mean = tf.reduce_mean(var)
       tf.scalar_summary('mean/' + name, mean)
@@ -82,13 +48,6 @@ def train():
       tf.histogram_summary(name, var)
 
   def nn_layer(input_tensor, input_dim, output_dim, layer_name, act=tf.nn.relu):
-    """Reusable code for making a simple neural net layer.
-
-    It does a matrix multiply, bias add, and then uses relu to nonlinearize.
-    It also sets up name scoping so that the resultant graph is easy to read,
-    and adds a number of summary ops.
-    """
-    # Adding a name scope ensures logical grouping of the layers in the graph.
     with tf.name_scope(layer_name):
       # This Variable will hold the state of the weights for the layer
       with tf.name_scope('weights'):
@@ -120,8 +79,7 @@ def train():
     tf.scalar_summary('cross entropy', cross_entropy)
 
   with tf.name_scope('train'):
-    train_step = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(
-        cross_entropy)
+    train_step = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(cross_entropy)
 
   with tf.name_scope('accuracy'):
     with tf.name_scope('correct_prediction'):
@@ -132,17 +90,11 @@ def train():
 
   # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
   merged = tf.merge_all_summaries()
-  train_writer = tf.train.SummaryWriter(FLAGS.summaries_dir + '/train',
-                                        sess.graph)
+  train_writer = tf.train.SummaryWriter(FLAGS.summaries_dir + '/train', sess.graph)
   test_writer = tf.train.SummaryWriter(FLAGS.summaries_dir + '/test')
   tf.initialize_all_variables().run()
 
-  # Train the model, and also write summaries.
-  # Every 10th step, measure test-set accuracy, and write test summaries
-  # All other steps, run train_step on training data, & add training summaries
-
   def feed_dict(train):
-    """Make a TensorFlow feed_dict: maps data onto Tensor placeholders."""
     if train or FLAGS.fake_data:
       xs, ys = mnist.train.next_batch(100, fake_data=FLAGS.fake_data)
       k = FLAGS.dropout
@@ -160,10 +112,7 @@ def train():
       if i % 100 == 99:  # Record execution stats
         run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
-        summary, _ = sess.run([merged, train_step],
-                              feed_dict=feed_dict(True),
-                              options=run_options,
-                              run_metadata=run_metadata)
+        summary, _ = sess.run([merged, train_step], feed_dict=feed_dict(True), options=run_options, run_metadata=run_metadata)
         train_writer.add_run_metadata(run_metadata, 'step%03d' % i)
         train_writer.add_summary(summary, i)
         print('Adding run metadata for', i)
@@ -175,9 +124,11 @@ def train():
 
 
 def main(_):
+  # 清掉文件夹
   if tf.gfile.Exists(FLAGS.summaries_dir):
     tf.gfile.DeleteRecursively(FLAGS.summaries_dir)
   tf.gfile.MakeDirs(FLAGS.summaries_dir)
+
   train()
 
 
