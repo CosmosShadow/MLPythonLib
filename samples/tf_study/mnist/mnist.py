@@ -22,9 +22,10 @@ def inference(images, hidden1_units, hidden2_units):
   return logits
 
 def loss(logits, labels):
-  labels = tf.to_int64(labels)
-  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels, name='xentropy')
-  loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
+  with tf.name_scope('loss'):
+    labels = tf.to_int64(labels)
+    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels, name='xentropy')
+    loss = tf.reduce_mean(cross_entropy, name='cross_entropy')
   return loss
 
 def training(loss, learning_rate):
@@ -35,8 +36,10 @@ def training(loss, learning_rate):
   return train_op
 
 def evaluation(logits, labels):
-  correct = tf.nn.in_top_k(logits, labels, 1)
-  return tf.reduce_sum(tf.cast(correct, tf.int32))
+  with tf.name_scope('right_count'):
+    correct = tf.nn.in_top_k(logits, labels, 1)
+    right_count = tf.reduce_sum(tf.cast(correct, tf.int32))
+  return right_count
 
 
 

@@ -1,1 +1,2 @@
 *.pyc
+samples/tf_study/mnist/data/*

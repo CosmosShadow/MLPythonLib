@@ -1,38 +1,8 @@
-# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
-"""A very simple MNIST classifier.
-
-See extensive documentation at
-http://tensorflow.org/tutorials/mnist/beginners/index.md
-"""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-# Import data
-from tensorflow.examples.tutorials.mnist import input_data
-
+# coding: utf-8
 import tensorflow as tf
+import cmtf.data.data_mnist as data_mnist
 
-flags = tf.app.flags
-FLAGS = flags.FLAGS
-flags.DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
-
-mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
-
+mnist = data_mnist.read_data_sets(one_hot=True)
 sess = tf.InteractiveSession()
 
 # Create the model
