@@ -1,5 +1,14 @@
 # coding: utf-8
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
+import gzip
+import re
+import sys
+import tarfile
+from six.moves import urllib
 from File.FilePath import *
 import tensorflow as tf
 import cmtf.data.data_cifar10_google as data_cifar10_google
@@ -12,7 +21,7 @@ NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = data_cifar10_google.NUM_EXAMPLES_PER_EPOCH_FOR
 
 def maybe_download_and_extract(DATA_URL, data_dir):
   """Download and extract the tarball from Alex's website."""
-  dest_directory = FLAGS.data_dir
+  dest_directory = data_dir
   if not os.path.exists(dest_directory):
     os.makedirs(dest_directory)
   filename = DATA_URL.split('/')[-1]
