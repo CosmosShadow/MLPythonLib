@@ -1,3 +1,4 @@
 *.pyc
 samples/tf_study/mnist/mnist/data/*
 samples/tf_study/cifar10/data/*
+samples/tf_study/cifar10/eval/*
