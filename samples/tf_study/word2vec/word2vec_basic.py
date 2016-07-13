@@ -8,71 +8,19 @@ import math
 import os
 import random
 import zipfile
-
 import numpy as np
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+import cmtf.data.data_word as data_word
 
-# Step 1: Download the data.
-url = 'http://mattmahoney.net/dc/'
-
-def maybe_download(filename, expected_bytes):
-  """Download a file if not present, and make sure it's the right size."""
-  if not os.path.exists(filename):
-    filename, _ = urllib.request.urlretrieve(url + filename, filename)
-  statinfo = os.stat(filename)
-  if statinfo.st_size == expected_bytes:
-    print('Found and verified', filename)
-  else:
-    print(statinfo.st_size)
-    raise Exception('Failed to verify ' + filename + '. Can you get to it with a browser?')
-  return filename
-
-filename = maybe_download('text8.zip', 31344016)
-
-
-# Read the data into a list of strings.
-def read_data(filename):
-  """Extract the first file enclosed in a zip file as a list of words"""
-  with zipfile.ZipFile(filename) as f:
-    data = tf.compat.as_str(f.read(f.namelist()[0])).split()
-  return data
-
-words = read_data(filename)
-print('Data size', len(words))
-
-# Step 2: Build the dictionary and replace rare words with UNK token.
 vocabulary_size = 50000
-
-def build_dataset(words):
-  count = [['UNK', -1]]
-  count.extend(collections.Counter(words).most_common(vocabulary_size - 1))
-  dictionary = dict()
-  for word, _ in count:
-    dictionary[word] = len(dictionary)
-  data = list()
-  unk_count = 0
-  for word in words:
-    if word in dictionary:
-      index = dictionary[word]
-    else:
-      index = 0  # dictionary['UNK']
-      unk_count += 1
-    data.append(index)
-  count[0][1] = unk_count
-  reverse_dictionary = dict(zip(dictionary.values(), dictionary.keys()))
-  return data, count, dictionary, reverse_dictionary
-
-data, count, dictionary, reverse_dictionary = build_dataset(words)
-del words  # Hint to reduce memory.
+data, count, dictionary, reverse_dictionary = data_word.words_encode(vocabulary_size)
 print('Most common words (+UNK)', count[:5])
 print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
 
-data_index = 0
-
-
 # Step 3: Function to generate a training batch for the skip-gram model.
+data_index = 0
 def generate_batch(batch_size, num_skips, skip_window):
   global data_index
   assert batch_size % num_skips == 0
@@ -99,8 +47,7 @@ def generate_batch(batch_size, num_skips, skip_window):
 
 batch, labels = generate_batch(batch_size=8, num_skips=2, skip_window=1)
 for i in range(8):
-  print(batch[i], reverse_dictionary[batch[i]],
-      '->', labels[i, 0], reverse_dictionary[labels[i, 0]])
+  print(batch[i], reverse_dictionary[batch[i]], '->', labels[i, 0], reverse_dictionary[labels[i, 0]])
 
 # Step 4: Build and train a skip-gram model.
 
@@ -118,9 +65,7 @@ valid_examples = np.random.choice(valid_window, valid_size, replace=False)
 num_sampled = 64    # Number of negative examples to sample.
 
 graph = tf.Graph()
-
 with graph.as_default():
-
   # Input data.
   train_inputs = tf.placeholder(tf.int32, shape=[batch_size])
   train_labels = tf.placeholder(tf.int32, shape=[batch_size, 1])
@@ -128,34 +73,19 @@ with graph.as_default():
 
   # Ops and variables pinned to the CPU because of missing GPU implementation
   with tf.device('/cpu:0'):
-    # Look up embeddings for inputs.
-    embeddings = tf.Variable(
-        tf.random_uniform([vocabulary_size, embedding_size], -1.0, 1.0))
+    embeddings = tf.Variable(tf.random_uniform([vocabulary_size, embedding_size], -1.0, 1.0))
     embed = tf.nn.embedding_lookup(embeddings, train_inputs)
-
-    # Construct the variables for the NCE loss
-    nce_weights = tf.Variable(
-        tf.truncated_normal([vocabulary_size, embedding_size],
-                            stddev=1.0 / math.sqrt(embedding_size)))
+    nce_weights = tf.Variable(tf.truncated_normal([vocabulary_size, embedding_size], stddev=1.0 / math.sqrt(embedding_size)))
     nce_biases = tf.Variable(tf.zeros([vocabulary_size]))
 
-  # Compute the average NCE loss for the batch.
-  # tf.nce_loss automatically draws a new sample of the negative labels each
-  # time we evaluate the loss.
-  loss = tf.reduce_mean(
-      tf.nn.nce_loss(nce_weights, nce_biases, embed, train_labels,
-                     num_sampled, vocabulary_size))
-
-  # Construct the SGD optimizer using a learning rate of 1.0.
+  loss = tf.reduce_mean(tf.nn.nce_loss(nce_weights, nce_biases, embed, train_labels, num_sampled, vocabulary_size))
   optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
 
   # Compute the cosine similarity between minibatch examples and all embeddings.
   norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
   normalized_embeddings = embeddings / norm
-  valid_embeddings = tf.nn.embedding_lookup(
-      normalized_embeddings, valid_dataset)
-  similarity = tf.matmul(
-      valid_embeddings, normalized_embeddings, transpose_b=True)
+  valid_embeddings = tf.nn.embedding_lookup(normalized_embeddings, valid_dataset)
+  similarity = tf.matmul(valid_embeddings, normalized_embeddings, transpose_b=True)
 
   # Add variable initializer.
   init = tf.initialize_all_variables()
@@ -170,8 +100,7 @@ with tf.Session(graph=graph) as session:
 
   average_loss = 0
   for step in xrange(num_steps):
-    batch_inputs, batch_labels = generate_batch(
-        batch_size, num_skips, skip_window)
+    batch_inputs, batch_labels = generate_batch(batch_size, num_skips, skip_window)
     feed_dict = {train_inputs : batch_inputs, train_labels : batch_labels}
 
     # We perform one update step by evaluating the optimizer op (including it
