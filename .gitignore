@@ -1,2 +1,2 @@
 *.pyc
-samples/tf_study/mnist/data/*
+samples/tf_study/mnist/mnist/data/*
