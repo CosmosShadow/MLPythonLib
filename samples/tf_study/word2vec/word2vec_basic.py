@@ -13,6 +13,8 @@ from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 import cmtf.data.data_word as data_word
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
 
 vocabulary_size = 50000
 data, count, dictionary, reverse_dictionary = data_word.words_encode(vocabulary_size)
@@ -147,9 +149,6 @@ def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
   plt.savefig(filename)
 
 try:
-  from sklearn.manifold import TSNE
-  import matplotlib.pyplot as plt
-
   tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
   plot_only = 500
   low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only,:])
