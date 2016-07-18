@@ -25,14 +25,17 @@ accuracy = softmax.evaluate_classifier(y)
 optimizer = tf.train.GradientDescentOptimizer(0.01)  # learning rate
 train_op = pt.apply_optimizer(optimizer, losses=[loss])
 
+total_loss = 0.0
 with tf.Session() as sess:
 	sess.run(tf.initialize_all_variables())
 	# train
-	for i in range(2000):
+	for i in xrange(1, 2000+1):
 		batch_xs, batch_ys = mnist.train.next_batch(100)
 		_, loss_val = sess.run([train_op, loss], feed_dict={x: batch_xs, y: batch_ys})
-		if (i+1)%100 == 0:
-			print 'index: %d, loss: %f' % (i+1, loss_val)
+		total_loss += loss_val
+		if i%100 == 0:
+			print 'index: %d, loss: %f' % (i, total_loss/100.0)
+			total_loss = 0.0
 	# test
 	accuracy_value = sess.run(accuracy, feed_dict={x:mnist.test.images, y:mnist.test.labels})
 	print 'Accuracy: %g' % accuracy_value
