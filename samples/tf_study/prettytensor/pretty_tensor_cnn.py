@@ -29,7 +29,7 @@ total_loss = 0.0
 with tf.Session() as sess:
 	sess.run(tf.initialize_all_variables())
 	# train
-	for i in xrange(1, 5000+1):
+	for i in xrange(1, 10000+1):
 		batch_xs, batch_ys = mnist.train.next_batch(100)
 		_, loss_val = sess.run([train_op, loss], feed_dict={x: batch_xs, y: batch_ys})
 		total_loss += loss_val
