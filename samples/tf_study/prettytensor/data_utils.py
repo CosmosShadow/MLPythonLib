@@ -48,22 +48,10 @@ def shakespeare(chunk_size):
 
 
 def baby_names(max_length=15):
-  """Opens the baby_names csv file and produces numpy array.
-
-  Args:
-    max_length: The maximum length, 15 was the longest name when this was
-      written.  Short entries will be padded with the EOS marker.
-  Returns:
-    A numpy array of the names converted to ascii codes, the labels and an
-    array of lengths.
-  Raises:
-    ValueError: if max_length is too small.
-  """
   names = []
   lengths = []
   targets = []
-  with open(os.path.join(os.path.dirname(sys.modules[__name__].__file__),
-                         'baby_names.csv'), 'rb') as f:
+  with open(os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'baby_names.csv'), 'rb') as f:
     first = True
     for l in csv.reader(f, delimiter=','):
       if first:
@@ -72,8 +60,7 @@ def baby_names(max_length=15):
       assert len(l) == 4, l
       name = l[0]
       if max_length < len(name):
-        raise ValueError('Max length is too small: %d > %d' %
-                         (max_length, len(name)))
+        raise ValueError('Max length is too small: %d > %d' % (max_length, len(name)))
       chars = [convert_to_int(c) for c in name]
       names.append(chars + ([EOS] * (max_length - len(chars))))
       lengths.append([len(name)])
