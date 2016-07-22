@@ -57,7 +57,7 @@ def main(_=None):
   names, sex, lengths = data_baby_names.baby_names(TIMESTEPS)
 
   epoch_size = len(names) // BATCH_SIZE
-  optimizer = tf.train.AdagradOptimizer(tf.train.exponential_decay(0.1, pt.global_step(), epoch_size, 0.95, staircase=True))
+  optimizer = tf.train.AdagradOptimizer(tf.train.exponential_decay(0.01, pt.global_step(), epoch_size, 0.95, staircase=True))
   train_op = pt.apply_optimizer(optimizer, losses=[result.loss])
 
   # We can set a save_path in the runner to automatically checkpoint every so
