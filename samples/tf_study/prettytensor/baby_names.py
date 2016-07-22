@@ -66,27 +66,31 @@ def main(_=None):
   # We can set a save_path in the runner to automatically checkpoint every so
   # often.  Otherwise at the end of the session, the model will be lost.
   runner = pt.train.Runner(save_path=FLAGS.save_path)
-  with tf.Session():
-    for epoch in xrange(100):
-      # Shuffle the training data.
-      names, sex, lengths = permute.permute_data((names, sex, lengths))
+  
+  gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
+  sess = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
 
-      runner.train_model(
-          train_op,
-          [result.loss, batch_accuracy],
-          epoch_size,
-          feed_vars=(input_placeholder, output_placeholder, length_placeholder),
-          feed_data=pt.train.feed_numpy(BATCH_SIZE, names, sex, lengths),
-          print_every=100)
-      classification_accuracy = runner.evaluate_model(
-          accuracy,
-          epoch_size,
-          print_every=0,
-          feed_vars=(input_placeholder, output_placeholder, length_placeholder),
-          feed_data=pt.train.feed_numpy(BATCH_SIZE, names, sex, lengths))
+  # with tf.Session():
+  for epoch in xrange(100):
+    # Shuffle the training data.
+    names, sex, lengths = permute.permute_data((names, sex, lengths))
 
-      print('Accuracy after epoch %d: %g%%' % (
-          epoch + 1, classification_accuracy * 100))
+    runner.train_model(
+        train_op,
+        [result.loss, batch_accuracy],
+        epoch_size,
+        feed_vars=(input_placeholder, output_placeholder, length_placeholder),
+        feed_data=pt.train.feed_numpy(BATCH_SIZE, names, sex, lengths),
+        print_every=100)
+    classification_accuracy = runner.evaluate_model(
+        accuracy,
+        epoch_size,
+        print_every=0,
+        feed_vars=(input_placeholder, output_placeholder, length_placeholder),
+        feed_data=pt.train.feed_numpy(BATCH_SIZE, names, sex, lengths))
+
+    print('Accuracy after epoch %d: %g%%' % (
+        epoch + 1, classification_accuracy * 100))
 
 
 if __name__ == '__main__':
