@@ -24,7 +24,10 @@ def create_model(text_in, labels, timesteps, per_example_weights, phase=pt.Phase
   with pt.defaults_scope(phase=phase, l2loss=0.00001):
     with tf.device('/cpu:0'):
       embedded = text_in.embedding_lookup(CHARS, [EMBEDDING_SIZE])
-    lstm = (embedded.cleave_sequence(timesteps).sequence_lstm(CHARS))
+    lstm = (embedded
+      .cleave_sequence(timesteps)
+      .sequence_lstm(CHARS)
+      .sequence_lstm(CHARS))
     return (lstm
       .squash_sequence()
       .fully_connected(32, activation_fn=tf.nn.relu)
