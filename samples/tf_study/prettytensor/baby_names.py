@@ -6,11 +6,12 @@ from __future__ import print_function
 import numpy
 import tensorflow as tf
 import prettytensor as pt
-from prettytensor.tutorial import data_utils
+import cmtf.func.lstm_func as lstm_func
+import cmtf.func.permute as permute
+import cmtf.data.data_baby_names as data_baby_names
 
 tf.app.flags.DEFINE_string('save_path', None, 'Where to save the model checkpoints on local disk. Checkpoints are in LevelDb.')
 FLAGS = tf.app.flags.FLAGS
-
 
 BATCH_SIZE = 32
 CHARS = 128
@@ -35,15 +36,15 @@ def main(_=None):
   print('Starting Baby Names')
   input_placeholder = tf.placeholder(tf.int32, [BATCH_SIZE, TIMESTEPS])
   output_placeholder = tf.placeholder(tf.float32, [BATCH_SIZE, SEXES])
-  inp = data_utils.reshape_data(input_placeholder)
+  inp = lstm_func.reshape_data_to_lstm_format(input_placeholder)
 
   # Create a label for each timestep.
   lables_1 = tf.reshape(tf.tile(output_placeholder, [1, TIMESTEPS]), [BATCH_SIZE, TIMESTEPS, SEXES])
-  labels = data_utils.reshape_data(lables_1, per_example_length=2)
+  labels = lstm_func.reshape_data_to_lstm_format(lables_1, per_example_length=2)
 
   length_placeholder = tf.placeholder(tf.int32, [BATCH_SIZE, 1])
   t = tf.concat(1, [tf.constant(numpy.arange(BATCH_SIZE).reshape((BATCH_SIZE, 1)), dtype=tf.int32), length_placeholder])
-  per_example_weights = data_utils.reshape_data(tf.sparse_to_dense(t, [BATCH_SIZE, TIMESTEPS], 1.0, default_value=0.0)).squeeze()
+  per_example_weights = lstm_func.reshape_data_to_lstm_format(tf.sparse_to_dense(t, [BATCH_SIZE, TIMESTEPS], 1.0, default_value=0.0)).squeeze()
 
   with tf.variable_scope('baby_names'):
     result = create_model(inp, labels, TIMESTEPS, per_example_weights)
@@ -53,7 +54,7 @@ def main(_=None):
   accuracy = test_result.softmax.evaluate_classifier(labels, phase=pt.Phase.test, per_example_weights=per_example_weights)
   batch_accuracy = result.softmax.evaluate_classifier(labels, phase=pt.Phase.train, per_example_weights=per_example_weights)
 
-  names, sex, lengths = data_utils.baby_names(TIMESTEPS)
+  names, sex, lengths = data_baby_names.baby_names(TIMESTEPS)
 
   epoch_size = len(names) // BATCH_SIZE
   optimizer = tf.train.AdagradOptimizer(tf.train.exponential_decay(1.0, pt.global_step(), epoch_size, 0.95, staircase=True))
@@ -65,7 +66,7 @@ def main(_=None):
   with tf.Session():
     for epoch in xrange(100):
       # Shuffle the training data.
-      names, sex, lengths = data_utils.permute_data((names, sex, lengths))
+      names, sex, lengths = permute.permute_data((names, sex, lengths))
 
       runner.train_model(
           train_op,
