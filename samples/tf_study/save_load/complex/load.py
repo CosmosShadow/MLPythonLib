@@ -29,9 +29,10 @@ with tf.Session() as sess:
 	# print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)[0])
 	for varible in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
 		print(varible.get_shape())
+		print(varible.name)
 	for varible in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES):
 		print(sess.run(varible))
-		
+
 	# print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)[0].get_shape())
 
 """output: 
