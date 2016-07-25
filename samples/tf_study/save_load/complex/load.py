@@ -25,6 +25,9 @@ with tf.Session() as sess:
 	x_val = np.ones([2, timesteps, 5])
 	y_val = sess.run(y, feed_dict={x: x_val})
 	print(y_val)
+	# print(tf.get_collection(tf.GraphKeys.VARIABLES)[0])
+	print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)[0])
+	print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)[0].get_shape())
 
 """output: 
 [[ 0.18480827]
