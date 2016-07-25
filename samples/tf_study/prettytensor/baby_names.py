@@ -26,7 +26,6 @@ def create_model(text_in, labels, timesteps, per_example_weights, phase=pt.Phase
       embedded = text_in.embedding_lookup(CHARS, [EMBEDDING_SIZE])
     lstm = (embedded
       .cleave_sequence(timesteps)
-      # .sequence_lstm(CHARS)
       .sequence_lstm(CHARS))
     return (lstm
       .squash_sequence()
