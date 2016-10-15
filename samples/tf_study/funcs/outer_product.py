@@ -16,6 +16,8 @@ x = tf.Variable([1, 2, 3, 4, 5])
 y = tf.Variable([4, 5, 6])
 x = tf.reshape(x, [-1, 1])
 y = tf.reshape(y, [1, -1])
+print x.get_shape()
+print y.get_shape()
 z = tf.mul(x, y)
 
 with tf.Session() as sess:

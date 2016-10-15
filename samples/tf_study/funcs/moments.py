@@ -12,8 +12,9 @@ with tf.Session() as sess:
 	sess.run(tf.initialize_all_variables())
 	print(sess.run(x))
 
-	print
 	mean_val, var_val = sess.run([mean, var])
+	print
 	print(mean_val)
+	print
 	print(var_val)
 
