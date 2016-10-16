@@ -56,10 +56,13 @@ with tf.Session() as sess:
 		batch_x, batch_y = mnist.train.next_batch(50)
 		if i%10 == 0:
 			train_accuracy = accuracy.eval(feed_dict={x:batch_x, y: batch_y, keep_prob: 1.0})
-			print "step %d, training accuracy %g"%(i, train_accuracy)
+			print "step %d, training accuracy %g" % (i, train_accuracy)
 		train_step.run(feed_dict={x: batch_x, y: batch_y, keep_prob: 0.5})
 
-	print "test accuracy %g"%accuracy.eval(feed_dict={x: mnist.test.images, y: mnist.test.labels, keep_prob: 1.0})
+	batch_x, batch_y = mnist.test.next_batch(500)
+	# print "test accuracy %g"%accuracy.eval(feed_dict={x: mnist.test.images, y: mnist.test.labels, keep_prob: 1.0})
+	test_accuracy = accuracy.eval(feed_dict={x: batch_x, y: batch_y, keep_prob: 1.0})
+	print "test accuracy %g" % test_accuracy
 
 
 
