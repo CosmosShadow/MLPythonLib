@@ -11,11 +11,11 @@ python $FZ_TOOL \
 --input_graph=$MY_DIR"mnist_graph_def" \
 --input_checkpoint=$MY_DIR"mnist.ckpt" \
 --output_graph=$MY_DIR"mnist_graph_with_var.pb" \
---output_node_names="eval_prediction" \
+--output_node_names="output" \
 --input_binary
 
 python $QT_TOOL \
 --input=$MY_DIR"mnist_graph_with_var.pb" \
---output_node_names="eval_prediction" --output=$MY_DIR"mnist.quantized.pb" \
+--output_node_names="output" --output=$MY_DIR"mnist.quantized.pb" \
 --mode=weights
 # quantize graph: 量子化参数，压缩模型

@@ -6,19 +6,20 @@ mnist = data_mnist.read_data_sets(one_hot=True)
 
 #----------------模型----------------
 # 输入
-x = tf.placeholder(tf.float32, [None, 784])
+x = tf.placeholder(tf.float32, [None, 784], name='x')
 y = tf.placeholder(tf.float32, [None,10])
 # 模型
 W = tf.Variable(tf.truncated_normal([784, 10], stddev=0.1))
 b = tf.Variable(tf.zeros([10]))
-output = tf.nn.softmax(tf.matmul(x,W) + b, name='eval_prediction')
+output = tf.nn.softmax(tf.matmul(x,W) + b, name='output')
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(y*tf.log(output), [1]))
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 # 正确率
 correct_prediction = tf.equal(tf.argmax(output,1), tf.argmax(y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
-tf.add_to_collection("eval_prediction", output)
+tf.add_to_collection("x", x)
+tf.add_to_collection("output", output)
 
 # run
 with tf.Session() as sess:
