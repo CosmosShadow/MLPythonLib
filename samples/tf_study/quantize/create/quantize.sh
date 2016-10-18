@@ -6,7 +6,6 @@ QT_TOOL=$TF_DIR'tensorflow/contrib/quantization/tools/quantize_graph.py'
 MY_DIR="./models/"
 
 # freeze graph: 把模型与参数合在一起
-
 python $FZ_TOOL \
 --input_graph=$MY_DIR"mnist_graph_def" \
 --input_checkpoint=$MY_DIR"mnist.ckpt" \
@@ -14,8 +13,8 @@ python $FZ_TOOL \
 --output_node_names="output" \
 --input_binary
 
+# quantize graph: 量子化参数，压缩模型
 python $QT_TOOL \
 --input=$MY_DIR"mnist_graph_with_var.pb" \
 --output_node_names="output" --output=$MY_DIR"mnist.quantized.pb" \
 --mode=weights
-# quantize graph: 量子化参数，压缩模型
