@@ -50,7 +50,7 @@ output_fc = fc()
 ratio = tf.reduce_max(output_fc) / tf.reduce_sum(output_fc)
 def fc_identity():
 	return tf.identity(output_fc)
-output = tf.cond(tf.greater(ratio, 0.3), fc_identity, cnn)
+output = tf.cond(tf.greater(ratio, 0.15), fc_identity, cnn)
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(y*tf.log(output), [1]))
 train_op = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
