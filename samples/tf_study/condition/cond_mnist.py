@@ -44,17 +44,20 @@ def cnn():
 # output = cnn()
 
 # ------------fc与cnn双网络-------------
-# 平均时间: 1.27~2.19
-# 正确率: 
+# 平均时间: 1.41
+# 正确率: 92.2
 output_fc = fc()
 ratio = tf.reduce_max(output_fc) / tf.reduce_sum(output_fc)
 def fc_identity():
 	return tf.identity(output_fc)
-output = tf.cond(tf.greater(ratio, 0.12), fc_identity, cnn)
+output = tf.cond(tf.greater(ratio, 0.3), fc_identity, cnn)
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(y*tf.log(output), [1]))
 train_op = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
 right_count_op = tf.reduce_sum(tf.cast(tf.equal(tf.argmax(output,1), tf.argmax(y,1)), tf.int32))
+
+cross_entropy_fc = tf.reduce_mean(-tf.reduce_sum(y*tf.log(output_fc), [1]))
+train_op_fc = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy_fc)
 
 def evaluate():
 	right_count = 0
@@ -70,7 +73,16 @@ config.gpu_options.allow_growth = True
 
 with tf.Session(config=config) as sess:
 	sess.run(tf.initialize_all_variables())
-	for epoch in range(100):
+	# 只训练fc
+	for epoch in range(20):
+		start_time = time.time()
+		for _ in range(500):
+			batch_xs, batch_ys = mnist.train.next_batch(1)
+			sess.run(train_op_fc, feed_dict={x: batch_xs, y: batch_ys})
+		right_percent = evaluate()
+		time_cost = time.time() - start_time
+		print 'epoch: %2d   time: %.2f   right: %.1f%%' %(epoch, time_cost, right_percent*100.0)
+	for epoch in range(20):
 		start_time = time.time()
 		for _ in range(500):
 			batch_xs, batch_ys = mnist.train.next_batch(1)
