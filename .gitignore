@@ -6,3 +6,4 @@ samples/tf_study/save_load/sample/checkpoint/*
 samples/tf_study/save_load/complex/checkpoint/*
 samples/tf_study/quantize/create/models/*
 samples/tf_study/quantize/create_pretty/models/*
+*-checkpoint.ipynb
