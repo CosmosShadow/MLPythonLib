@@ -45,11 +45,10 @@ with tf.Session(config=config) as sess:
 		_, loss_ = sess.run([train_op, loss], feed_dict={x: data_input, y: data_label})
 		if epoch%10 == 0:
 			print loss_
-	
-	print "generate"
+
+	print "generate start with 0: "
 	initial_state_ = sess.run(initial_state)
 	input_x = np.zeros((1, 1))
-	print 0
 	for _ in range(8):
 		feed_dict = {x: input_x, initial_state: initial_state_}
 		outputs_, final_state_ = sess.run([outputs, final_state], feed_dict)
