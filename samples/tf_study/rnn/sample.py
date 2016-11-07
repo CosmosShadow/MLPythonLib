@@ -3,12 +3,15 @@ import tensorflow as tf
 import prettytensor as pt
 import numpy as np
 
-state_is_tuple = True
-batch_size = 1
 
+# 数据
 data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 data_input = data[:-1].reshape(1, -1)
 data_label = data[1:]
+
+
+# 网络结构
+batch_size = 1
 
 x = tf.placeholder(tf.int64, shape=[None, None])		#batch size, time step, intput size(embedding_lookup)
 y = tf.placeholder(tf.int64, shape=[None])
@@ -16,11 +19,11 @@ y = tf.placeholder(tf.int64, shape=[None])
 embeddings = tf.Variable(tf.random_uniform([10, 4], -1.0, 1.0))
 embed = tf.nn.embedding_lookup(embeddings, x)
 
-cell1 = tf.nn.rnn_cell.BasicLSTMCell(32, state_is_tuple=state_is_tuple)
-cell2 = tf.nn.rnn_cell.BasicLSTMCell(32, state_is_tuple=state_is_tuple)
+cell1 = tf.nn.rnn_cell.BasicLSTMCell(32)
+cell2 = tf.nn.rnn_cell.BasicLSTMCell(32)
 cells = [cell1, cell2]
 
-cell = tf.nn.rnn_cell.MultiRNNCell(cells, state_is_tuple=state_is_tuple)
+cell = tf.nn.rnn_cell.MultiRNNCell(cells)
 initial_state = cell.zero_state(batch_size, tf.float32)
 
 rnn_outputs, final_state = tf.nn.dynamic_rnn(cell, embed, sequence_length=None, initial_state=initial_state, parallel_iterations=1, swap_memory=True)
@@ -29,9 +32,8 @@ outputs = rnn_outputs.fully_connected(10, activation_fn=None)
 
 loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(outputs, y))
 train_accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(outputs,1), y), "float"))
-
-# 训练器
 train_op = tf.train.MomentumOptimizer(0.1, 0.9, use_nesterov=True).minimize(loss)
+
 
 # GPU使用率
 config = tf.ConfigProto()
