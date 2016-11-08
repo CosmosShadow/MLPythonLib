@@ -7,3 +7,8 @@ samples/tf_study/save_load/complex/checkpoint/*
 samples/tf_study/quantize/create/models/*
 samples/tf_study/quantize/create_pretty/models/*
 *-checkpoint.ipynb
+*.pb
+*/checkpoint
+*/checkpoint.ckpt
+*/checkpoint.ckpt.meta
+*/graph_def
