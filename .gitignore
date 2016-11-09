@@ -12,3 +12,4 @@ samples/tf_study/quantize/create_pretty/models/*
 */checkpoint.ckpt
 */checkpoint.ckpt.meta
 */graph_def
+*.png
