@@ -11,33 +11,20 @@ data_label = data[1:]
 
 # Network
 batch_size = 1
+length = 1
+class_num = 7
 
-x = tf.placeholder(tf.int64, shape=[batch_size, None])		#batch size, time-steps, intput size(embedding_lookup)
-y = tf.placeholder(tf.int64, shape=[None])					#time-steps
+x = tf.placeholder(tf.int32, shape=[1, 1], name='x')
+y = tf.placeholder(tf.int32, shape=[1])
 
-embeddings = tf.Variable(tf.random_uniform([10, 4], -1.0, 1.0))
-embed = tf.nn.embedding_lookup(embeddings, x)
+with pt.defaults_scope(activation_fn=tf.nn.relu, l2loss=0.00001):
+	x_wrap = pt.wrap(x)
+	embedded = x_wrap.embedding_lookup(10, [class_num]).cleave_sequence(1)
+	pt_outputs = (embedded.sequence_lstm(32).sequence_lstm(32).squash_sequence().fully_connected(class_num, activation_fn=None))
 
-cell1 = tf.nn.rnn_cell.BasicLSTMCell(32)
-cell2 = tf.nn.rnn_cell.BasicLSTMCell(32)
-cells = [cell1, cell2]
-cell = tf.nn.rnn_cell.MultiRNNCell(cells)
-initial_state_base = cell.zero_state(batch_size, tf.float32)
-initial_state = tf.identity(initial_state_base, name='initial_state')
-rnn_outputs, final_state_base = tf.nn.dynamic_rnn(cell, embed, sequence_length=None, initial_state=initial_state, parallel_iterations=1, swap_memory=True)
-final_state = tf.identity(final_state_base, name='final_state')
-
-rnn_outputs = pt.wrap(tf.reshape(rnn_outputs, [-1, 32]))
-pt_outputs = rnn_outputs.fully_connected(10, activation_fn=None)
 outputs = tf.identity(pt_outputs, name='outputs')
 
-loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(outputs, y))
-train_accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(outputs,1), y), "float"))
-train_op = tf.train.MomentumOptimizer(0.1, 0.9, use_nesterov=True).minimize(loss)
-
 tf.add_to_collection('x', x)
-tf.add_to_collection('initial_state', initial_state)
-tf.add_to_collection('final_state', final_state)
 tf.add_to_collection('outputs', outputs)
 
 # GPU setting
@@ -51,24 +38,12 @@ with tf.Session(config=config) as sess:
 	sess.run(tf.initialize_all_variables())
 	# 存graph
 	tf.train.write_graph(sess.graph.as_graph_def(), './model/', 'graph_def', as_text=False)
-	# Train
-	for epoch in range(100):
-		_, loss_ = sess.run([train_op, loss], feed_dict={x: data_input, y: data_label})
-		if epoch%10 == 0:
-			print loss_
-	# 存checkpoint
 	saver.save(sess, './model/checkpoint.ckpt')
 	#Evaluate
-	print "generate start with 0: "
-	initial_state_ = sess.run(initial_state)
 	input_x = np.zeros((1, 1))
 	for _ in range(8):
-		feed_dict = {x: input_x, initial_state: initial_state_}
-		outputs_, final_state_ = sess.run([outputs, final_state], feed_dict)
-		initial_state_ = final_state_
-		output_class = outputs_[0].argmax()
-		input_x[0][0] = output_class
-		print output_class
+		outputs_ = sess.run([outputs], feed_dict={x: [[1]]})
+		print outputs_[0].argmax()
 
 
 

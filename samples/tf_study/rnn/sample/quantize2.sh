@@ -10,7 +10,7 @@ QT_TOOL=$TF_DIR'tensorflow/contrib/quantization/tools/quantize_graph.py'
 
 WORK_DIR='./model'
 OUTPUT_DIR='./model_quantized'
-OUTPUT_NAME='outputs'
+OUTPUT_NAME='outputs,initial_state,final_state'
 
 # freeze graph: 把模型与参数合在一起
 python $FZ_TOOL \
