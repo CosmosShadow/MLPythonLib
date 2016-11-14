@@ -5,6 +5,7 @@ import numpy as np
 
 
 data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+# data = np.ones([100])
 data_input = data[:-1].reshape(1, -1)
 data_label = data[1:]
 
@@ -27,6 +28,16 @@ initial_state = tf.identity(initial_state_base, name='initial_state')
 rnn_outputs, final_state_base = tf.nn.dynamic_rnn(cell, embed, sequence_length=None, initial_state=initial_state, parallel_iterations=1, swap_memory=True)
 final_state = tf.identity(final_state_base, name='final_state')
 
+# print cell1.state_size
+# print cell.state_size
+# print embed.get_shape()
+print initial_state.get_shape()
+other_input = tf.placeholder(tf.int64, shape=[1])
+other_embed = tf.nn.embedding_lookup(embeddings, other_input)
+other_state = tf.placeholder(tf.float32, shape=[1, 128])
+with tf.variable_scope('RNN', reuse=True):
+	other_output = cell(other_embed, other_state)
+
 rnn_outputs = pt.wrap(tf.reshape(rnn_outputs, [-1, 32]))
 pt_outputs = rnn_outputs.fully_connected(10, activation_fn=None)
 outputs = tf.identity(pt_outputs, name='outputs')
@@ -35,10 +46,10 @@ loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(outputs, y)
 train_accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(outputs,1), y), "float"))
 train_op = tf.train.MomentumOptimizer(0.1, 0.9, use_nesterov=True).minimize(loss)
 
-tf.add_to_collection('x', x)
-tf.add_to_collection('initial_state', initial_state)
-tf.add_to_collection('final_state', final_state)
-tf.add_to_collection('outputs', outputs)
+for var in tf.all_variables():
+	print var.name, var.get_shape()
+print initial_state.get_shape()
+print final_state.get_shape()
 
 # GPU setting
 config = tf.ConfigProto()
