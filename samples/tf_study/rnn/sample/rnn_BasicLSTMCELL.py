@@ -34,9 +34,10 @@ final_state = tf.identity(final_state_base, name='final_state')
 print initial_state.get_shape()
 other_input = tf.placeholder(tf.int64, shape=[1])
 other_embed = tf.nn.embedding_lookup(embeddings, other_input)
-other_state = tf.placeholder(tf.float32, shape=[1, 128])
+other_state = tf.Variable(tf.zeros([1, 128])) 
+# tf.placeholder(tf.float32, shape=[1, 128])
 with tf.variable_scope('RNN', reuse=True):
-	other_output = cell(other_embed, other_state)
+	other_output, other_state_out = cell(other_embed, other_state)
 
 rnn_outputs = pt.wrap(tf.reshape(rnn_outputs, [-1, 32]))
 pt_outputs = rnn_outputs.fully_connected(10, activation_fn=None)
