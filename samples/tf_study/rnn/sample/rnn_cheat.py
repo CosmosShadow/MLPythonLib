@@ -54,7 +54,9 @@ with tf.variable_scope('RNN', reuse=True):
 	rnn_outputs, final_state = multi_cell(embed, initial_state)
 with tf.variable_scope('full_connect', reuse=True):
 	pt_outputs = full_connect(rnn_outputs)
-outputs = tf.identity(pt_outputs, name="outputs")
+assign_op = initial_state.assign(final_state)
+with tf.control_dependencies([assign_op]):
+	outputs = tf.identity(pt_outputs, name="outputs")
 
 for var in tf.all_variables():
 	print var.name, var.get_shape()
@@ -78,13 +80,9 @@ with tf.Session(config=config) as sess:
 	# 存checkpoint
 	saver.save(sess, './model/checkpoint.ckpt')
 	#Evaluate
-	print "generate start with 0: "
-	initial_state_ = sess.run(initial_state)
 	input_x = np.zeros((1))
 	for _ in range(8):
-		feed_dict = {x: input_x, initial_state: initial_state_}
-		outputs_, final_state_ = sess.run([outputs, final_state], feed_dict)
-		initial_state_ = final_state_
+		outputs_ = sess.run(outputs, feed_dict={x: input_x})
 		output_class = outputs_.argmax()
 		input_x[0] = output_class
 		print output_class
