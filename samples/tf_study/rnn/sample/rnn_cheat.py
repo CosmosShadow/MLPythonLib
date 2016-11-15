@@ -4,7 +4,7 @@ import prettytensor as pt
 import numpy as np
 
 
-data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6])
 # data = np.ones([100])
 data_input = data[:-1].reshape(1, -1)
 data_label = data[1:]
@@ -74,7 +74,7 @@ with tf.Session(config=config) as sess:
 	# 存graph
 	tf.train.write_graph(sess.graph.as_graph_def(), './model/', 'graph_def', as_text=False)
 	# Train
-	for epoch in range(100):
+	for epoch in range(200):
 		_, loss_ = sess.run([train_op, loss], feed_dict={train_x: data_input, train_y: data_label})
 		if epoch%10 == 0:
 			print loss_
@@ -83,7 +83,7 @@ with tf.Session(config=config) as sess:
 	#Evaluate
 	input_x = np.zeros((1))
 	initial_state_ = sess.run(initial_state)
-	for _ in range(8):
+	for _ in range(20):
 		outputs_, initial_state_ = sess.run([outputs, final_state], feed_dict={x: input_x, initial_state: initial_state_})
 		output_class = outputs_.argmax()
 		input_x[0] = output_class
