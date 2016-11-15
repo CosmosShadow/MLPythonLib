@@ -49,7 +49,7 @@ train_op = tf.train.MomentumOptimizer(0.1, 0.9, use_nesterov=True).minimize(loss
 # Run Network
 x = tf.placeholder(tf.int64, shape=[1], name="x")
 embed = tf.nn.embedding_lookup(embeddings, x)
-initial_state = tf.Variable(tf.zeros(train_initial_state.get_shape()))
+initial_state = tf.Variable(tf.zeros(train_initial_state.get_shape()), name='initial_state')
 with tf.variable_scope('RNN', reuse=True):
 	rnn_outputs, final_state_base = multi_cell(embed, initial_state)
 with tf.variable_scope('full_connect', reuse=True):
