@@ -18,9 +18,5 @@ class TFObject(object):
 		scope_str = scope_str[:scope_str.find(':')]
 		return scope_str
 
-class ClassName(object):
-	"""docstring for ClassName"""
-	def __init__(self, arg):
-		super(ClassName, self).__init__()
-		self.arg = arg
-		
+	def variables(self):
+		return [v for v in tf.all_variables() if v.name.startswith(self.scope)]
