@@ -4,7 +4,7 @@ import imageio
 images = []
 for filename in filenames:
     images.append(imageio.imread(filename))
-imageio.mimsave('/path/to/movie.gif', images)
+imageio.mimsave('/path/to/movie.gif', images, duration=1.0)
 
 
 # import imageio
