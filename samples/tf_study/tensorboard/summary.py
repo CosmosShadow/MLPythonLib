@@ -26,7 +26,6 @@ tf.scalar_summary('accuracy', accuracy)
 merged_summary = tf.merge_all_summaries()
 
 
-
 mnist = data_mnist.read_data_sets(one_hot=True)
 
 
