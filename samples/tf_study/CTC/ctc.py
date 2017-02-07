@@ -9,6 +9,7 @@ labels = tf.SparseTensor(indices=[[0, 0], [0, 1], [0, 2]], values=[1, 2, 3], sha
 sequence_length = tf.constant(np.array([100]*1), tf.int32)
 loss = tf.nn.ctc_loss(inputs, labels, sequence_length, preprocess_collapse_repeated=False, ctc_merge_repeated=True)
 
+decoded, log_prob = tf.nn.ctc_greedy_decoder(inputs, sequence_length, merge_repeated=False)
 
 config = tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.8
@@ -18,6 +19,11 @@ sess = tf.Session(config=config)
 sess.run(tf.initialize_all_variables())
 
 print sess.run(loss)
+
+decoded, log_prob = sess.run([decoded, log_prob])
+
+print decoded
+print log_prob
 
 
 sess.close()
