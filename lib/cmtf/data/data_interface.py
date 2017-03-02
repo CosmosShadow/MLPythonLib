@@ -19,7 +19,10 @@ class DataSet(object):
 
 	@property
 	def count(self):
-		return self._x.shape[0]
+		if isinstance(self._x, list):
+			return len(self._x)
+		else:
+			return self._x.shape[0]
 
 	def set_x(self, x):
 		self._x = x
@@ -42,8 +45,14 @@ class DataSet(object):
 			if self._index_in_epoch == 0:
 				perm = np.arange(self.count)
 				np.random.shuffle(perm)
-				self._x = self._x[perm]
-				self._y = self._y[perm]
+				if isinstance(self._x, list):
+					self._x = [self._x[i] for i in perm]
+				else:
+					self._x = self._x[perm]
+				if isinstance(self._y, list):
+					self._y = [self._y[i] for i in perm]
+				else:
+					self._y = self._y[perm]
 
 			self._index_in_epoch += batch_size
 
@@ -99,10 +108,11 @@ class DataSets(object):
 if __name__ == '__main__':
 	minist = DataSets()
 	minist.train.set_x(np.zeros([10, 10]))
-	minist.train.set_y(np.random.rand(10))
+	minist.train.set_y([3]*10)
 	minist.test.set_x(np.zeros([10, 10]))
 	minist.test.set_y(np.zeros([10]))
 
-	for _ in range(5):
-		x, y = minist.train.next_batch(3, isFixed=False)
+	for _ in range(1):
+		x, y = minist.train.next_batch(32, isFixed=False)
 		print y
+		print x
