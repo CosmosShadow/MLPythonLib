@@ -5,11 +5,15 @@ import os
 import sys
 import requests
 import xmltodict
-import urllib
 import socket
 from six.moves import queue as Queue
 from threading import Thread
 import re
+import ssl
+import urllib
+import urllib2
+ 
+ssl._create_default_https_context = ssl._create_unverified_context
 
 from File.FilePath import *
 from File.loop_file import *
@@ -32,21 +36,25 @@ class DownloadThread(Thread):
 		socket.setdefaulttimeout(self.timeout)
 
 		if not os.path.isfile(save_path):
-			print("Downloading %s from %s" % (save_path, url))
+			print("Downloading %s from %s\n" % (save_path, url))
 			retry_times = 0
 			while retry_times < self.retry:
 				try:
 					urllib.urlretrieve(url, filename=save_path)
+					if not os.path.isfile(save_path):
+						data = urllib2.urlopen(url).read()
+						with open(save_path,'wb') as f:
+							f.write(data)
 					break
-				except:
-					pass
+				except Exception as e:
+					print e
 				retry_times += 1
 			else:
 				try:
-					os.remove(file_path)
+					os.remove(save_path)
 				except OSError:
 					pass
-				print("Failed to retrieve from %s" % (url))
+				print("Failed to retrieve from %s\n" % (url))
 
 
 class Downloader(object):
