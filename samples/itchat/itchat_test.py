@@ -18,8 +18,6 @@ training_iters = 200000
 batch_size = 128
 display_step = 100
 
-from_name = '@c07ae10facf50d77e27756b79d8c2f6efedd5f5ac40e5e5bb250f7985d6be4b8'
-to_name = '@c07ae10facf50d77e27756b79d8c2f6efedd5f5ac40e5e5bb250f7985d6be4b8'
 
 def nn_train(to_name, param):
 	global lock, running
@@ -162,16 +160,16 @@ def nn_train(to_name, param):
 
 @itchat.msg_register([itchat.content.TEXT])
 def chat_trigger(msg):
-	global lock, running, learning_rate, training_iters, batch_size, display_step, from_name, to_name
+	global lock, running, learning_rate, training_iters, batch_size, display_step
 	print msg
-	if msg['FromUserName'] == from_name:
+	if msg['FromUserName'] == msg['ToUserName']:
 		if msg['Text'] == u'开始':
 			print('Starting')
 			with lock:
 				run_state = running
 			if not run_state:
 				try:
-					threading.Thread(target=nn_train, args=(to_name, (learning_rate, training_iters, batch_size, display_step))).start()
+					threading.Thread(target=nn_train, args=(msg['ToUserName'], (learning_rate, training_iters, batch_size, display_step))).start()
 				except:
 					msg.reply('Running')
 		elif msg['Text'] == u'停止':
@@ -179,7 +177,7 @@ def chat_trigger(msg):
 			with lock:
 				running = False
 		elif msg['Text'] == u'参数':
-			itchat.send('lr=%f, ti=%d, bs=%d, ds=%d'%(learning_rate, training_iters, batch_size, display_step), to_name)
+			itchat.send('lr=%f, ti=%d, bs=%d, ds=%d'%(learning_rate, training_iters, batch_size, display_step), msg['ToUserName'])
 		else:
 			try:
 				print '---------params------------'
