@@ -21,6 +21,15 @@ def rangeWithValues(arr, values):
 
 	return (startIndex, endIndex)
 
+
+# 排名
+def rank(x):
+	index = np.argsort(-x)
+	rank_ = np.zeros(x.shape)
+	rank_[index] = np.arange(x.size) + 1
+	return rank_
+
+
 if __name__ == "__main__":
 	arr = [1, 1, 2, 2, 3, 5, 6, 2, 0, 10]
 	values = [2, 0]
