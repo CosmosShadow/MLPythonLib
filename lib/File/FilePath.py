@@ -18,3 +18,13 @@ def removeAndCreateDir(dirPath):
 def NoExistsCreateDir(dirPath):
 	if not os.path.exists(dirPath):
 		os.makedirs(dirPath)
+
+def check_dir(dir):
+	if not os.path.exists(dir):
+		os.makedirs(dir)
+
+
+def clear_dir(dir):
+	if os.path.exists(dir):
+		shutil.rmtree(dir, ignore_errors=True)
+	os.makedirs(dir)
