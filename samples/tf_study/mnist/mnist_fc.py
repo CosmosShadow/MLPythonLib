@@ -21,7 +21,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 # run
 with tf.Session() as sess:
 	# init
-	sess.run(tf.initialize_all_variables())
+	sess.run(tf.global_variables_initializer())
 	# train
 	for i in range(1000):
 		batch_xs, batch_ys = mnist.train.next_batch(100)
