@@ -1,14 +1,12 @@
 # coding: utf-8
 import imageio
+import File.loop_file as loop_file
 
-images = []
-for filename in filenames:
-    images.append(imageio.imread(filename))
-imageio.mimsave('/path/to/movie.gif', images, duration=1.0)
+path = '/Users/lichen/Desktop/cifar_samples'
+gif_path = '/Users/lichen/Desktop/cifar_samples.gif'
 
+filenames = loop_file.list_dir(path, ['.png'])
+print filenames
 
-# import imageio
-# with imageio.get_writer('/path/to/movie.gif', mode='I') as writer:
-#     for filename in filenames:
-#         image = imageio.imread(filename)
-#         writer.append_data(image)
+images = [imageio.imread(filename) for filename in filenames]
+imageio.mimsave(gif_path, images, duration=1.0)
