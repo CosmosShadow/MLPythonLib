@@ -1,4 +1,6 @@
 # coding: utf-8
+import time
+import numpy as np
 import tensorflow as tf
 import cmtf.data.data_mnist as data_mnist
 
@@ -50,17 +52,20 @@ correct_prediction = tf.equal(tf.argmax(output,1), tf.argmax(y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
 with tf.Session() as sess:
-	sess.run(tf.initialize_all_variables())
+	sess.run(tf.global_variables_initializer())
 
-	for i in range(100):
-		batch_x, batch_y = mnist.train.next_batch(50)
-		if i%10 == 0:
-			train_accuracy = accuracy.eval(feed_dict={x:batch_x, y: batch_y, keep_prob: 1.0})
-			print "step %d, training accuracy %g" % (i, train_accuracy)
-		train_step.run(feed_dict={x: batch_x, y: batch_y, keep_prob: 0.5})
+	for index in range(10):
+		start = time.time()
+		acc_arr = []
+		for _ in range(100):
+			batch_x, batch_y = mnist.train.next_batch(50)
+			train_step.run(feed_dict={x: batch_x, y: batch_y, keep_prob: 0.5})
+			acc = accuracy.eval(feed_dict={x:batch_x, y: batch_y, keep_prob: 1.0})
+			acc_arr.append(acc)
+		print "index: %2d   time: %.2f   acc: %.4f" % (index, time.time()-start, np.array(acc_arr).mean())
+		
 
 	batch_x, batch_y = mnist.test.next_batch(500)
-	# print "test accuracy %g"%accuracy.eval(feed_dict={x: mnist.test.images, y: mnist.test.labels, keep_prob: 1.0})
 	test_accuracy = accuracy.eval(feed_dict={x: batch_x, y: batch_y, keep_prob: 1.0})
 	print "test accuracy %g" % test_accuracy
 
