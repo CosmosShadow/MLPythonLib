@@ -13,9 +13,5 @@ samples/tf_study/quantize/create_pretty/models/*
 *checkpoint.ckpt.meta
 *graph_def
 *.png
-samples/tf_study/tensorboard/log/events.out.tfevents.1484807969.lc-mac.local
-samples/tf_study/tensorboard/log/events.out.tfevents.1484808005.lc-mac.local
-samples/tf_study/tensorboard/log/events.out.tfevents.1484808052.lc-mac.local
-samples/tf_study/tensorboard/log/events.out.tfevents.1484808079.lc-mac.local
-samples/tf_study/tensorboard/log/events.out.tfevents.1484808100.lc-mac.local
-samples/tf_study/tensorboard/log/events.out.tfevents.1484808110.lc-mac.local
+samples/tf_study/tensorboard/log/*
+samples/flickr/account.py
