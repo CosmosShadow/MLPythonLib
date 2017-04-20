@@ -1,0 +1,1 @@
+https://stuvel.eu/flickrapi-doc/index.html
