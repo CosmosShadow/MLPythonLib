@@ -12,7 +12,7 @@ import re
 import ssl
 import urllib
 import urllib2
- 
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 from File.FilePath import *
